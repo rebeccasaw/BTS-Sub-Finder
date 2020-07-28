@@ -23,12 +23,12 @@ function reset() {
   subtitlesChecked = false;
   console.log("reset called");
 
-  if (window.location.toString() != currentUrl) {
-    console.log("on youtube ran");
-    currentUrl = window.location.toString();
-    // waitForElementToDisplay("#channel-name", 5000);
-    getSubtitlesData();
-  }
+  //if (window.location.toString() != currentUrl) {
+  console.log("on youtube ran");
+  currentUrl = window.location.toString();
+  // waitForElementToDisplay("#channel-name", 5000);
+  getSubtitlesData();
+  // }
 }
 function getSubtitlesData() {
   var url = window.location.toString();
@@ -54,8 +54,8 @@ function getSubtitlesData() {
         }
       }
       subtitlesChecked = true;
-     // bothProcessesFinished();
-     waitForElementToDisplay("#channel-name", 5000);
+      // bothProcessesFinished();
+      waitForElementToDisplay("#channel-name", 5000);
     }
   }
 }
@@ -83,6 +83,7 @@ function checkChannelName() {
   //console.log("channel name = " + channelName);
   if (btsChannels.includes(channelName)) {
     isBTSVid = true;
+
   }
   checkTitle(isBTSVid);
 }
@@ -93,6 +94,8 @@ function checkTitle(isBTSVid) {
     videoTitle = videoTitle.toLowerCase();
     if (videoTitle.includes("bts") || videoTitle.includes("bangtan")) {
       isBTSVid = true;
+      var channelName = document.querySelector("#channel-name").innerText;
+      if (channelName == "Bangtan Subs") isBTSVid = false; //make this layout better
     }
   }
   console.log("isBTSVid = " + isBTSVid);
@@ -108,14 +111,15 @@ function checkTitle(isBTSVid) {
 function bothProcessesFinished(isThisBTSVid) {
   console.log("isBTSVid = " + isBTSVid);
   console.log(" unchecked isBTSVid = " + isBTSVid + " hasEngSubs = " + hasEngSubs);
-  
+
   if (BTSChecked && subtitlesChecked) { //got both data
     console.log("isBTSVid = " + isBTSVid + " hasEngSubs = " + hasEngSubs);
     if (isThisBTSVid) {
       if (hasEngSubs) {
         turnSubsOn();
       } else {
-        searchForAltVid();
+        //searchForAltVid();
+        openSubbedVid();
       }
     }
   }
@@ -150,9 +154,67 @@ function searchForAltVid() {
       break;
     }
   }
+}
 
+function openSubbedVid() {
+  var date = document.querySelector("#date").innerText;
+  var dateCode = getDateCode(date);
+
+  var title = document.querySelector(".title").innerText;
+  window.open("https://www.youtube.com/c/BangtanSubs/search?query=" + title);
+  pauseVideo();
+
+  var newVidTitleObj = document.querySelector("#video-title");
+  var newVidTitle = newVidTitleObj.innerText;
+  console.log("new vid tite = "+newVidTitle);
+  if (newVidTitle.includes(title) && newVidTitle.includes(dateCode)) {
+    newVidTitleObj.click();
+  }
 
 }
+
+
+function getDateCode(dateString) {
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  dateString = dateString.slice(1);
+  var parts = dateString.split(" ");
+  var yearCode = parts[2].charAt(2) + parts[2].charAt(3);
+  var monthCode = months.indexOf(parts[1]) + 1;
+  monthCode = makeTwoDigitNumber(monthCode.toString());
+  var dayCode = makeTwoDigitNumber(parts[0]);
+  var dateCode = yearCode + monthCode + dayCode;
+  return dateCode;
+}
+
+function makeTwoDigitNumber(number) {
+  console.log("make two number " + number);
+  var length = number.length;
+  console.log("make two number length" + length + " '" + number + "'");
+  if (length === 1) number = "0" + number;
+  return number;
+}
+
+function pauseVideo() {
+  var playButton = document.getElementsByClassName('ytp-play-button')[0];
+  var playing = playButton.getAttribute("aria-label") === "Pause (k)";
+  if (playing) {
+    playButton.click();
+  }
+}
+
+  //get title of original vid
+  //get date
+  //date is yr month day
+  //search vid title here
+  //https://www.youtube.com/c/BangtanSubs/search?query=jungkook
+  //$("#video-title").innerText;
+  //if new vid title date code is correct
+  //open that vid
+
+
+
+
 
 
   // chrome.tabs.create({'url': chrome.extension.getURL('popup.html')}, function(tab) {

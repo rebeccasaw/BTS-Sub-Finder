@@ -1,18 +1,27 @@
-chrome.runtime.onInstalled.addListener(function() {
-    // ...
-  
-    chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-      // changeInfo object: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated#changeInfo
-      // status is more reliable (in my case)
-      // use "alert(JSON.stringify(changeInfo))" to check what's available and works in your case
-      if (changeInfo.status === 'complete') {
-         // alert("newtab");
-        chrome.tabs.sendMessage(tabId, {
-          message: 'TabUpdated'
-        });
-      }
-    })
-  });
+chrome.runtime.onInstalled.addListener(function () {
+  // ...
+
+  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    // changeInfo object: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated#changeInfo
+    // status is more reliable (in my case)
+    // use "alert(JSON.stringify(changeInfo))" to check what's available and works in your case
+
+    console.log("window = " + window.location.toString());
+
+    if (changeInfo.status === 'complete') {
+      // alert("newtab");
+      // alert(tabId + tab.url);
+      //tab.url
+      //so if watch do watch message
+      //if bangtan do bangtan
+      //seperate reciever here to close tab?
+      //think that should work
+      chrome.tabs.sendMessage(tabId, {
+        message: 'TabUpdated'
+      });
+    }
+  })
+});
 
 // chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //     alert('updated from background ');
@@ -21,14 +30,14 @@ chrome.runtime.onInstalled.addListener(function() {
 
 // chrome.runtime.onInstalled.addListener(function() {
 //     // ...
-  
+
 //     // chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 //     //   // changeInfo object: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated#changeInfo
 //     //   // status is more reliable (in my case)
 //     //   // use "alert(JSON.stringify(changeInfo))" to check what's available and works in your case
 //     // //   if (changeInfo.status === 'complete') {
 //     // //     chrome.runtime.sendMessage("test");
-       
+
 //     //         // chrome.tabs.executeScript({
 //     //         //   file: 'onYouTube.js'
 //     //         // });
