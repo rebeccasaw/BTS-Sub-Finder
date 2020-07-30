@@ -1,74 +1,46 @@
-var btsChannels = ["BANGTANTV", "Big Hit Labels", "UNIVERSAL MUSIC JAPAN"];
-
-var isBTSVid = false;
-var hasEngSubs = false;
-
-var BTSChecked = false;
-var subtitlesChecked = false;
-
-var currentUrl;
+var btsChannels = ["BANGTANTV", "Big Hit Labels"];
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
-    if (window.location.toString().includes("watch")) {
-      reset();
-    };
+    reset();
   }
 });
 
 function reset() {
-  isBTSVid = false;
-  hasEngSubs = false;
-  BTSChecked = false;
-  subtitlesChecked = false;
-  console.log("reset called");
-
-  //if (window.location.toString() != currentUrl) {
   console.log("on youtube ran");
-  currentUrl = window.location.toString();
-  // waitForElementToDisplay("#channel-name", 5000);
   getSubtitlesData();
-  // }
 }
+
 function getSubtitlesData() {
+  var hasEngSubs = false;
   var url = window.location.toString();
   var watchId;
   var urlParts = url.split("youtube.com/watch?v=");
   if (urlParts.length > 0) {
     watchId = urlParts[1];
-
     var request = new XMLHttpRequest();
     request.open("GET", "https://video.google.com/timedtext?type=list&v=" + watchId);
     request.send();
-
-
+    
     request.onload = function () {
       var xml = request.responseXML;
-      var languageNodes = xml.childNodes[0].childNodes;
-      for (var i = 0; i < languageNodes.length; i++) {
-        var code = languageNodes[i].getAttribute("lang_code");
-        if (code === "en" || code === "en-gb" || code === "en-us") {
-          // console.log("this vid has eng subtitles");
-          hasEngSubs = true;
-
+      if (xml) {
+        var languageNodes = xml.childNodes[0].childNodes;
+        for (var i = 0; i < languageNodes.length; i++) {
+          var code = languageNodes[i].getAttribute("lang_code");
+          if (code === "en" || code === "en-gb" || code === "en-us") {
+            hasEngSubs = true;
+          }
         }
       }
-      subtitlesChecked = true;
-      // bothProcessesFinished();
-      waitForElementToDisplay("#channel-name", 5000);
+      waitForElementToDisplay("#channel-name", 5000, hasEngSubs);
     }
   }
 }
 
-
-// if (window.location.toString().includes("watch")) {
-//   waitForElementToDisplay("#channel-name", 5000);
-//   getSubtitlesData();
-// };
-
-function waitForElementToDisplay(selector, time) {
+function waitForElementToDisplay(selector, time, hasEngSubs) {
   if (document.querySelector(selector) != null) {
-    checkChannelName();
+    decideAction(hasEngSubs);
     return;
   }
   else {
@@ -78,52 +50,32 @@ function waitForElementToDisplay(selector, time) {
   }
 }
 
+function decideAction(hasEngSubs) {
+  var isBTSChannel = checkChannelName();
+  var isBTSTitle = checkTitle();
+
+  console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
+
+  if (isBTSChannel && hasEngSubs) {
+    turnSubsOn();
+  } else if (isBTSChannel) {
+    openSubbedVid();
+  }
+
+}
+
 function checkChannelName() {
   var channelName = document.querySelector("#channel-name").innerText;
-  //console.log("channel name = " + channelName);
-  if (btsChannels.includes(channelName)) {
-    isBTSVid = true;
-
-  }
-  checkTitle(isBTSVid);
+  return btsChannels.includes(channelName);
 }
 
-function checkTitle(isBTSVid) {
-  if (!isBTSVid) {
-    var videoTitle = document.querySelector(".title").innerText;
-    videoTitle = videoTitle.toLowerCase();
-    if (videoTitle.includes("bts") || videoTitle.includes("bangtan")) {
-      isBTSVid = true;
-      var channelName = document.querySelector("#channel-name").innerText;
-      if (channelName == "Bangtan Subs") isBTSVid = false; //make this layout better
-    }
-  }
-  console.log("isBTSVid = " + isBTSVid);
-  BTSChecked = true;
-  console.log("isBTSVid = " + isBTSVid);
-  bothProcessesFinished(isBTSVid);
+function checkTitle() {
+  var videoTitle = document.querySelector(".title").innerText;
+  videoTitle = videoTitle.toLowerCase();
+  return (videoTitle.includes("bts") || videoTitle.includes("bangtan"));
 }
 
 
-
-
-
-function bothProcessesFinished(isThisBTSVid) {
-  console.log("isBTSVid = " + isBTSVid);
-  console.log(" unchecked isBTSVid = " + isBTSVid + " hasEngSubs = " + hasEngSubs);
-
-  if (BTSChecked && subtitlesChecked) { //got both data
-    console.log("isBTSVid = " + isBTSVid + " hasEngSubs = " + hasEngSubs);
-    if (isThisBTSVid) {
-      if (hasEngSubs) {
-        turnSubsOn();
-      } else {
-        //searchForAltVid();
-        openSubbedVid();
-      }
-    }
-  }
-}
 
 function turnSubsOn() {
   console.log("turnSubsOn");
@@ -131,28 +83,6 @@ function turnSubsOn() {
   var subtitlesOff = subtitlesButton.getAttribute("aria-pressed");
   if (subtitlesOff) {
     $(".ytp-subtitles-button").click();
-    //add pop up to say we've turned subtitles on
-  }
-}
-
-var translated = [["https://www.youtube.com/watch?v=Y-EmkILnUZs", "https://www.youtube.com/watch?v=EMJPye8pi6k"], ["https://www.youtube.com/watch?v=Q0Z41us9Qws", "https://www.youtube.com/watch?v=MaJOmvFEwm4"]];
-
-
-function searchForAltVid() {
-  var currentURL = window.location.toString();
-  //modify to include http
-  for (var i = 0; i < translated.length; i++) {
-    if (translated[i][0] === currentURL) {
-      window.open(translated[i][1]);
-      var playButton = document.getElementsByClassName('ytp-play-button')[0];
-      var playing = playButton.getAttribute("aria-label") === "Pause (k)";
-      if (playing) {
-        playButton.click();
-      }
-      // window.location.replace(translated[i][1]);
-      //add in user preferences to open in new tab or same tab
-      break;
-    }
   }
 }
 
@@ -166,17 +96,14 @@ function openSubbedVid() {
 
   var newVidTitleObj = document.querySelector("#video-title");
   var newVidTitle = newVidTitleObj.innerText;
-  console.log("new vid tite = "+newVidTitle);
-  if (newVidTitle.includes(title) && newVidTitle.includes(dateCode)) {
-    newVidTitleObj.click();
-  }
+
 
 }
 
 
 function getDateCode(dateString) {
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
+  var dateCodeArray = [];
   dateString = dateString.slice(1);
   var parts = dateString.split(" ");
   var yearCode = parts[2].charAt(2) + parts[2].charAt(3);
@@ -184,13 +111,40 @@ function getDateCode(dateString) {
   monthCode = makeTwoDigitNumber(monthCode.toString());
   var dayCode = makeTwoDigitNumber(parts[0]);
   var dateCode = yearCode + monthCode + dayCode;
-  return dateCode;
+  //need to add one to date code etc?
+  dateCodeArray.push(dateCode);
+  var dayInt = parseInt(parts[0]);
+  dayInt++;
+  dayCode = makeTwoDigitNumber(dayInt.toString());
+  dateCode = yearCode + monthCode + dayCode;
+  dateCodeArray.push(dateCode);
+  dayInt = dayInt - 2;
+  dayCode = makeTwoDigitNumber(dayInt.toString());
+  dateCode = yearCode + monthCode + dayCode;
+  dateCodeArray.push(dateCode);
+  //rebecca this code is terrible make it better
+  console.log(dateCodeArray);
+  return dateCodeArray;
 }
 
+// function makeDateCodeArray(dateCode) {
+//   var dateCodeArray = [];
+//   var dayIntsArray = [];
+//   dateCodeArray.push(dateCode);
+//   var dayInt = parseInt(dateCode.charAt(0) + dateCode.charAt(1));
+//   dayIntsArray.push(dayInt + 1);
+//   dayIntsArray.push(dayInt - 1);
+
+//   for (var i = 0; i < dayIntsArray.length; i++) {
+//     var dayCode = makeTwoDigitNumber(dayIntsArray[i].toString());
+//     dateCode = yearCode + monthCode + dayCode;
+//     dateCodeArray.push(dateCode);
+//   }
+//   return dateCodeArray;
+// }
+
 function makeTwoDigitNumber(number) {
-  console.log("make two number " + number);
   var length = number.length;
-  console.log("make two number length" + length + " '" + number + "'");
   if (length === 1) number = "0" + number;
   return number;
 }
@@ -211,9 +165,6 @@ function pauseVideo() {
   //$("#video-title").innerText;
   //if new vid title date code is correct
   //open that vid
-
-
-
 
 
 
@@ -239,22 +190,3 @@ function pauseVideo() {
 //give options - pop up/open in new tab/open in same tab
 //save preferences in chrome storage?
 
-// window.addEventListener("message", function(event) {
-//     // We only accept messages from ourselves
-//     if (event.source != window)
-//       return;
-
-//     if (event.data.type && (event.data.type == "FROM_PAGE")) {
-//       console.log("Content script received: " + event.data.text);
-//       port.postMessage(event.data.text);
-//     }
-//   }, false);
-
-//changing icon colour to signify if subtitles are available for that vid
-//if not and clicked - can you help us find a subtitled version of this video?
-
-//console.log("isBTSVid = "+isBTSVid);
-//var menuitems = document.querySelectorAll(".ytp-menuitem-content");
-//console.log("menu items = "+menuitems.length);
-
-//ytp-menuitem-label-count

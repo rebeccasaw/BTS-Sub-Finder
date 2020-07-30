@@ -16,6 +16,18 @@ chrome.runtime.onInstalled.addListener(function () {
       //if bangtan do bangtan
       //seperate reciever here to close tab?
       //think that should work
+
+      //chrome.tabs.create({url:"https://google.com",active: false});
+      //will work like this, currently causing loop
+
+
+      // chrome.tabs.executeScript({
+      //   file: 'new.js'
+      // });
+      //to send new js file to new open tab page
+
+      //send msg with tab id
+      //can return tab id to focus or close it
       chrome.tabs.sendMessage(tabId, {
         message: 'TabUpdated'
       });
@@ -50,3 +62,9 @@ chrome.runtime.onInstalled.addListener(function () {
 //     // });
 //     //        });
 // //   });
+
+//
+// if (window.location.toString().includes("watch")) {
+//   waitForElementToDisplay("#channel-name", 5000);
+//   getSubtitlesData();
+// };
