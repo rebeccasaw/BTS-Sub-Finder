@@ -74,7 +74,8 @@ function decideAction(hasEngSubs) {
   console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
 
   if (isBTSChannel && hasEngSubs) {
-    turnSubsOn();
+    //turnSubsOn();
+    waitForSubtitleButtonReady();
   } else if (isBTSChannel) {
     openSubbedVid();
   }
@@ -100,17 +101,32 @@ function checkTitle() {
 }
 
 
-function turnSubsOn() {
-  console.log("turnSubsOn");
+function waitForSubtitleButtonReady() {
+  console.log("turnSubsOn waiting");
   var subtitlesButton = document.querySelector(".ytp-subtitles-button");
   var subtitlesOn = subtitlesButton.getAttribute("aria-pressed");
-  console.log("subtitlesOn = "+subtitlesOn);
-  if (subtitlesOn ==="false") {
+  if (subtitlesOn != null) {
+    turnSubsOn(subtitlesOn);
+  }
+  else {
+    setTimeout(function () {
+      console.log("null so waiting");
+     waitForSubtitleButtonReady();
+    }, 1000);
+
+  }
+}
+
+function turnSubsOn(subtitlesOn) {
+  console.log("subtitlesOn = " + subtitlesOn);
+  if (subtitlesOn === "false") {
     $(".ytp-subtitles-button").click();
     console.log("clicked");
   }
-  
+
 }
+
+
 
 function openSubbedVid() {
   var date = document.querySelector("#date").innerText;
