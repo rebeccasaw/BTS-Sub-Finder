@@ -1,17 +1,29 @@
 chrome.runtime.onInstalled.addListener(function () {
-  // ...
+  
 
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    // changeInfo object: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated#changeInfo
-    // status is more reliable (in my case)
-    // use "alert(JSON.stringify(changeInfo))" to check what's available and works in your case
-
-    console.log("window = " + window.location.toString());
-
+   
     if (changeInfo.status === 'complete') {
       chrome.tabs.sendMessage(tabId, {
         message: 'TabUpdated'
       });
+
+    }
+  });
+
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.message === 'FindSubbedVid') {
+      alert("finding subbed vid");
+    }
+  });
+});
+//message to open new tab
+
+
+ // changeInfo object: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated#changeInfo
+    // status is more reliable (in my case)
+    // use "alert(JSON.stringify(changeInfo))" to check what's available and works in your case
+
         // alert("newtab");
       // alert(tabId + tab.url);
       //tab.url
@@ -31,9 +43,7 @@ chrome.runtime.onInstalled.addListener(function () {
 
       //send msg with tab id
       //can return tab id to focus or close it
-    }
-  })
-});
+
 
 // chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //     alert('updated from background ');
