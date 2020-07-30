@@ -1,4 +1,4 @@
-var btsChannels = ["BANGTANTV", "Big Hit Labels"];
+var oldVidTitle = "";
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
@@ -8,7 +8,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function reset() {
   console.log("on youtube ran");
-  getSubtitlesData();
+  var newURL = window.location.toString();
+  if (newURL.includes("watch")) {
+    getSubtitlesData();
+  }
+
 }
 
 function getSubtitlesData() {
@@ -21,10 +25,10 @@ function getSubtitlesData() {
     var request = new XMLHttpRequest();
     request.open("GET", "https://video.google.com/timedtext?type=list&v=" + watchId);
     request.send();
-    
+
     request.onload = function () {
       var xml = request.responseXML;
-      if (xml) {
+      if (xml != null) {
         var languageNodes = xml.childNodes[0].childNodes;
         for (var i = 0; i < languageNodes.length; i++) {
           var code = languageNodes[i].getAttribute("lang_code");
@@ -33,19 +37,32 @@ function getSubtitlesData() {
           }
         }
       }
-      waitForElementToDisplay("#channel-name", 5000, hasEngSubs);
+      waitForElementToDisplay("#channel-name", 1000, hasEngSubs);
     }
   }
 }
 
 function waitForElementToDisplay(selector, time, hasEngSubs) {
   if (document.querySelector(selector) != null) {
-    decideAction(hasEngSubs);
-    return;
+    //title exists
+    var newVidTitle = null;
+    newVidTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+    console.log("oldVidTitle = " + oldVidTitle + " new vid title " + newVidTitle);
+    if (newVidTitle != oldVidTitle && newVidTitle != "Home") {
+      decideAction(hasEngSubs);
+      oldVidTitle = newVidTitle;
+      return;
+    }
+    else {
+      setTimeout(function () {
+        waitForElementToDisplay(selector, time, hasEngSubs);
+      }, time);
+    }
+
   }
   else {
     setTimeout(function () {
-      waitForElementToDisplay(selector, time);
+      waitForElementToDisplay(selector, time, hasEngSubs);
     }, time);
   }
 }
@@ -65,16 +82,24 @@ function decideAction(hasEngSubs) {
 }
 
 function checkChannelName() {
+  var btsChannels = ["BANGTANTV", "Big Hit Labels"];
   var channelName = document.querySelector("#channel-name").innerText;
-  return btsChannels.includes(channelName);
+  //console.log("bts Channels = " + btsChannels + " channelName =" + channelName);
+
+  for (var i = 0; i < btsChannels.length; i++) {
+    if (channelName.includes(btsChannels[i])) {
+      return true;
+    }
+  }
+  // return btsChannels.includes(channelName);
+  return false;
 }
 
 function checkTitle() {
-  var videoTitle = document.querySelector(".title").innerText;
+  var videoTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
   videoTitle = videoTitle.toLowerCase();
   return (videoTitle.includes("bts") || videoTitle.includes("bangtan"));
 }
-
 
 
 function turnSubsOn() {
@@ -90,7 +115,7 @@ function openSubbedVid() {
   var date = document.querySelector("#date").innerText;
   var dateCode = getDateCode(date);
 
-  var title = document.querySelector(".title").innerText;
+  var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
   window.open("https://www.youtube.com/c/BangtanSubs/search?query=" + title);
   pauseVideo();
 

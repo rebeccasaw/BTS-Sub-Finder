@@ -9,7 +9,10 @@ chrome.runtime.onInstalled.addListener(function () {
     console.log("window = " + window.location.toString());
 
     if (changeInfo.status === 'complete') {
-      // alert("newtab");
+      chrome.tabs.sendMessage(tabId, {
+        message: 'TabUpdated'
+      });
+        // alert("newtab");
       // alert(tabId + tab.url);
       //tab.url
       //so if watch do watch message
@@ -28,9 +31,6 @@ chrome.runtime.onInstalled.addListener(function () {
 
       //send msg with tab id
       //can return tab id to focus or close it
-      chrome.tabs.sendMessage(tabId, {
-        message: 'TabUpdated'
-      });
     }
   })
 });
