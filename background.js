@@ -1,9 +1,10 @@
 chrome.runtime.onInstalled.addListener(function () {
-  
+
 
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-   
+
     if (changeInfo.status === 'complete') {
+    //  alert("change tabId = "+tabId);
       chrome.tabs.sendMessage(tabId, {
         message: 'TabUpdated'
       });
@@ -13,7 +14,19 @@ chrome.runtime.onInstalled.addListener(function () {
 
   chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.message === 'FindSubbedVid') {
-      alert("finding subbed vid");
+
+      chrome.tabs.create({ url: request.url, active: false }, function (tab) {
+        //make new tab
+      // alert("hello tab = "+tab);
+        // chrome.tabs.sendMessage(tab.id, { //send new message to that tab
+        //   message: 'chooseSubbedVid'
+        // });
+       // chrome.tabs.sendMessage(tab.id, {message: "hello"});
+
+
+      });
+    }else if(request.message ==="ready"){
+    //  chrome.tabs.sendMessage(sender.tab.id, {message: "hello"});
     }
   });
 });

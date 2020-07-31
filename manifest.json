@@ -11,11 +11,21 @@
     "content_scripts": [
         {
             "matches": [
-                "https://*.youtube.com/*",
-                "http://*.youtube.com/*"
+                "https://*.youtube.com/watch*",
+                "http://*.youtube.com/watch*"
             ],
             "js": [
                 "onYouTube.js", "jquery-3.5.1.js"
+            ]
+        },
+
+        {
+            "matches": [
+                "https://*.youtube.com/c/BangtanSubs/search*",
+                "http://*.youtube.com/c/BangtanSubs/search*"
+            ],
+            "js": [
+                "subbedVidPage.js", "jquery-3.5.1.js"
             ]
         }
     ],

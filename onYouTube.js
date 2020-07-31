@@ -32,7 +32,7 @@ function getSubtitlesData() {
         var languageNodes = xml.childNodes[0].childNodes;
         for (var i = 0; i < languageNodes.length; i++) {
           var code = languageNodes[i].getAttribute("lang_code");
-          if (code === "en" || code === "en-gb" || code === "en-us") {
+          if (code === "en" || code === "en-GB" || code === "en-US") {
             hasEngSubs = true;
           }
         }
@@ -44,7 +44,8 @@ function getSubtitlesData() {
 
 function waitForElementToDisplay(selector, time, hasEngSubs) {
   if (document.querySelector(selector) != null) {
-    //title exists
+    //title exists - or channelName? 
+    //should probably check both
     var newVidTitle = null;
     newVidTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
     console.log("oldVidTitle = " + oldVidTitle + " new vid title " + newVidTitle);
@@ -133,11 +134,13 @@ function openSubbedVid() {
   var dateCode = getDateCode(date);
 
   var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-  window.open("https://www.youtube.com/c/BangtanSubs/search?query=" + title);
+  //window.open("https://www.youtube.com/c/BangtanSubs/search?query=" + title);
   pauseVideo();
-  // chrome.tabs.sendMessage(tabId, {
-  //   message: 'FindSubbedVid'
-  // });
+//title was wrong before
+var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
+  chrome.runtime.sendMessage({message: "FindSubbedVid",url: subbedUrl }, function(response) {
+  });
+
   var newVidTitleObj = document.querySelector("#video-title");
   var newVidTitle = newVidTitleObj.innerText;
 
@@ -200,37 +203,3 @@ function pauseVideo() {
     playButton.click();
   }
 }
-
-  //get title of original vid
-  //get date
-  //date is yr month day
-  //search vid title here
-  //https://www.youtube.com/c/BangtanSubs/search?query=jungkook
-  //$("#video-title").innerText;
-  //if new vid title date code is correct
-  //open that vid
-
-
-
-  // chrome.tabs.create({'url': chrome.extension.getURL('popup.html')}, function(tab) {
-  //   // Tab opened.
-  // });
-  // chrome.notifications.create(
-  //   'name-for-notification',{   
-  //   type: 'basic', 
-  //   title: "This is a notification", 
-  //   message: "hello there!" 
-  //   },
-
-
-  // function() {} 
-
-  // );
-  //database? idk
-  //maybe array for now
-  //google storage
-
-
-//give options - pop up/open in new tab/open in same tab
-//save preferences in chrome storage?
-
