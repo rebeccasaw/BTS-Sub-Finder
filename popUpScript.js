@@ -11,11 +11,11 @@
 //   });
 //window.postMessage({ type: "FROM_PAGE", text: "Hello from the webpage!" }, "*");
 console.log("hello from popup");
-var newVidImg = document.querySelector("#newVidImg");
-newVidImg.addEventListener('click', function () {
-    //alert ("yo");
-    window.open("https://www.youtube.com/watch?v=OMjMmULhl_M");
-});
+// var newVidImg = document.querySelector("#newVidImg");
+// newVidImg.addEventListener('click', function () {
+//     //alert ("yo");
+//     window.open("https://www.youtube.com/watch?v=OMjMmULhl_M");
+// });
 
 
  //   alert("hi");

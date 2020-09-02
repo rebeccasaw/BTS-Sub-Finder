@@ -1,8 +1,13 @@
 var oldVidTitle = "";
+console.log("on you tube top once called");
+// reset();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
     reset();
+    console.log("tab updated");
+  }else if(request.message ==="foundSubbedVidResult"){
+    onSubbedVidResult(request.result);
   }
 });
 
@@ -75,7 +80,6 @@ function decideAction(hasEngSubs) {
   console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
 
   if (isBTSChannel && hasEngSubs) {
-    //turnSubsOn();
     waitForSubtitleButtonReady();
   } else if (isBTSChannel) {
     openSubbedVid();
@@ -103,7 +107,6 @@ function checkTitle() {
 
 
 function waitForSubtitleButtonReady() {
-  console.log("turnSubsOn waiting");
   var subtitlesButton = document.querySelector(".ytp-subtitles-button");
   var subtitlesOn = subtitlesButton.getAttribute("aria-pressed");
   if (subtitlesOn != null) {
@@ -134,11 +137,9 @@ function openSubbedVid() {
   var dateCode = getDateCode(date);
 
   var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-  //window.open("https://www.youtube.com/c/BangtanSubs/search?query=" + title);
-  pauseVideo();
-//title was wrong before
+  //pauseVideo();
 var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
-  chrome.runtime.sendMessage({message: "FindSubbedVid",url: subbedUrl }, function(response) {
+  chrome.runtime.sendMessage({message: "FindSubbedVid",url: subbedUrl, dateArray: dateCode,vidTitle:title}, function(response) {
   });
 
   var newVidTitleObj = document.querySelector("#video-title");
@@ -202,4 +203,11 @@ function pauseVideo() {
   if (playing) {
     playButton.click();
   }
+}
+
+
+function onSubbedVidResult(result){
+
+pauseVideo();
+//alert("result = "+result);
 }
