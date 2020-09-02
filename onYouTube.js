@@ -19,9 +19,10 @@ function reset() {
   console.log("on youtube ran");
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
-  //   window.addEventListener('DOMContentLoaded', (event) => {
-  //     alert('DOM fully loaded and parsed');
-  // });
+    window.addEventListener('yt-page-data-updated', (event) => {
+      var channelName = document.querySelector("#channel-name").innerText;
+      alert("channel name = "+channelName);
+  });
     getSubtitlesData();
   }
   else {
@@ -66,6 +67,9 @@ function waitForElementToDisplay(selector, time, hasEngSubs) {
   //is channel name correct when video title is loaded
   //is there a dom loaded event
 
+
+  //if title is different
+  //is channel name updated and correct at that point
   if (document.querySelector(selector) != null) {
     //title exists - or channelName? 
     //should probably check both
