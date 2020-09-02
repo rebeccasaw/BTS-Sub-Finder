@@ -1,12 +1,16 @@
 var oldVidTitle = "";
+var oldChannelName = "";
+
+
+
 console.log("on you tube top once called");
-// reset();
+reset();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
     reset();
-    console.log("tab updated");
-  }else if(request.message ==="foundSubbedVidResult"){
+    // console.log("tab updated");
+  } else if (request.message === "foundSubbedVidResult") {
     onSubbedVidResult(request.result);
   }
 });
@@ -15,7 +19,16 @@ function reset() {
   console.log("on youtube ran");
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
+  //   window.addEventListener('DOMContentLoaded', (event) => {
+  //     alert('DOM fully loaded and parsed');
+  // });
     getSubtitlesData();
+  }
+  else {
+    //if it doesn't
+    //so it youtube but not watch
+    //set old channel name
+    //but what if same channel diff vid
   }
 
 }
@@ -48,15 +61,23 @@ function getSubtitlesData() {
 }
 
 function waitForElementToDisplay(selector, time, hasEngSubs) {
+  //add check channel name changed here
+  //what if two vids from same channel
+  //is channel name correct when video title is loaded
+  //is there a dom loaded event
+
   if (document.querySelector(selector) != null) {
     //title exists - or channelName? 
     //should probably check both
     var newVidTitle = null;
+    var newChannelName = null;
     newVidTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+    newChannelName = document.querySelector("#channel-name").innerText;
     console.log("oldVidTitle = " + oldVidTitle + " new vid title " + newVidTitle);
-    if (newVidTitle != oldVidTitle && newVidTitle != "Home") {
+    if (newVidTitle != oldVidTitle && newVidTitle != "Home" && newChannelName != oldChannelName) {
       decideAction(hasEngSubs);
       oldVidTitle = newVidTitle;
+      oldChannelName = newChannelName;
       return;
     }
     else {
@@ -90,7 +111,7 @@ function decideAction(hasEngSubs) {
 function checkChannelName() {
   var btsChannels = ["BANGTANTV", "Big Hit Labels"];
   var channelName = document.querySelector("#channel-name").innerText;
-
+  console.log("Channel name = " + channelName);
   for (var i = 0; i < btsChannels.length; i++) {
     if (channelName.includes(btsChannels[i])) {
       return true;
@@ -115,7 +136,7 @@ function waitForSubtitleButtonReady() {
   else {
     setTimeout(function () {
       console.log("null so waiting");
-     waitForSubtitleButtonReady();
+      waitForSubtitleButtonReady();
     }, 1000);
 
   }
@@ -138,8 +159,8 @@ function openSubbedVid() {
 
   var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
   //pauseVideo();
-var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
-  chrome.runtime.sendMessage({message: "FindSubbedVid",url: subbedUrl, dateArray: dateCode,vidTitle:title}, function(response) {
+  var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
+  chrome.runtime.sendMessage({ message: "FindSubbedVid", url: subbedUrl, dateArray: dateCode, vidTitle: title }, function (response) {
   });
 
   var newVidTitleObj = document.querySelector("#video-title");
@@ -206,8 +227,8 @@ function pauseVideo() {
 }
 
 
-function onSubbedVidResult(result){
+function onSubbedVidResult(result) {
 
-pauseVideo();
-//alert("result = "+result);
+  pauseVideo();
+  //alert("result = "+result);
 }

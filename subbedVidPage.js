@@ -15,13 +15,16 @@ function findCorrectVid(dateArray, oldVidTitle) {
   var listedTitle = getListedVidTitle();
   console.log("listedTitle = " + listedTitle);
 
-  
-  if (listedTitle.includes(dateArray[0])||listedTitle.includes(dateArray[1])||listedTitle.includes(dateArray[2])) { 
+
+  if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
     var title = document.querySelector(".ytd-video-renderer #video-title");
     title.click();
-console.log("subbed vid success");
-chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
-});
+    console.log("subbed vid success");
+    chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
+    });
+    // chrome.tabs.executeScript({
+    //     file: 'onYouTube.js'
+    //   });
   }
 
 
@@ -35,13 +38,6 @@ chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (respo
 
 
 function getListedVidTitle() {
-  //$(#video-title)
-  //var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-  // var title = document.querySelector("#video-title").innerText;
   var title = document.querySelector(".ytd-video-renderer #video-title").innerText;
-
-  // var renderElmt = document.getElementsByClassName("ytd-video-renderer");
-  // var title = renderElmt[0].querySelector("#video-title");
-
   return title;
 }
