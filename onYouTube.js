@@ -1,6 +1,7 @@
 var oldVidTitle = "";
 var oldChannelName = "";
 
+var firstTimeRunning = true;
 
 
 console.log("on you tube top once called");
@@ -8,7 +9,11 @@ reset();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
-    reset();
+    if (!firstTimeRunning){
+      reset();
+    }else{
+      firstTimeRunning = false;
+    }
     // console.log("tab updated");
   } else if (request.message === "foundSubbedVidResult") {
     onSubbedVidResult(request.result);
@@ -19,20 +24,13 @@ function reset() {
   console.log("on youtube ran");
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
-    window.addEventListener('yt-page-data-updated', (event) => {
-      var channelName = document.querySelector("#channel-name").innerText;
-      alert("channel name = "+channelName);
-  });
     getSubtitlesData();
   }
-  else {
-    //if it doesn't
-    //so it youtube but not watch
-    //set old channel name
-    //but what if same channel diff vid
-  }
-
 }
+
+//promise here
+
+
 
 function getSubtitlesData() {
   var hasEngSubs = false;
@@ -56,7 +54,8 @@ function getSubtitlesData() {
           }
         }
       }
-      waitForElementToDisplay("#channel-name", 1000, hasEngSubs);
+      // waitForElementToDisplay("#channel-name", 1000, hasEngSubs);
+      waitForYTInfo(hasEngSubs);
     }
   }
 }
@@ -70,7 +69,16 @@ function waitForElementToDisplay(selector, time, hasEngSubs) {
 
   //if title is different
   //is channel name updated and correct at that point
-  if (document.querySelector(selector) != null) {
+  // if (document.querySelector(selector) != null) {
+  var titleSelector = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+
+  if (titleSelector != null && titleSelector != "Home") {
+
+    //if this broken now
+    //because there is a channel name
+    //probably
+
+
     //title exists - or channelName? 
     //should probably check both
     var newVidTitle = null;
@@ -78,10 +86,14 @@ function waitForElementToDisplay(selector, time, hasEngSubs) {
     newVidTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
     newChannelName = document.querySelector("#channel-name").innerText;
     console.log("oldVidTitle = " + oldVidTitle + " new vid title " + newVidTitle);
-    if (newVidTitle != oldVidTitle && newVidTitle != "Home" && newChannelName != oldChannelName) {
+    if (newVidTitle != oldVidTitle && newVidTitle != "Home") {
       decideAction(hasEngSubs);
       oldVidTitle = newVidTitle;
-      oldChannelName = newChannelName;
+      //check channel name here?
+
+
+      var channelName2 = document.querySelector("#channel-name").innerText;
+      alert(" new channel name 2 =" + channelName2 + " newVidTitle = " + newVidTitle);
       return;
     }
     else {
@@ -97,6 +109,34 @@ function waitForElementToDisplay(selector, time, hasEngSubs) {
     }, time);
   }
 }
+
+
+function waitForYTInfo(hasEngSubs) {
+  console.log("wait 2 called");
+
+
+  var vidTitle = document.querySelector("#info-contents .title").innerText.trim();
+  var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
+  console.log("title = " + vidTitle + " channel name = " + channelName);
+  console.log("vidTitle is null = " + (vidTitle === null) + " vidtitle is nothing = " + ((vidTitle === "")));
+
+  console.log("vidTitle = " + vidTitle + " oldVidTitle = " + oldVidTitle);
+  if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
+    setTimeout(function () {
+      waitForYTInfo(hasEngSubs);
+    }, 1000);
+  } else if (vidTitle == oldVidTitle) {
+    setTimeout(function () {
+      waitForYTInfo(hasEngSubs);
+    }, 1000);
+  } else {
+    decideAction(hasEngSubs);
+    oldVidTitle = vidTitle;
+  }
+}
+
+
+//at some point change to promises to speed up
 
 function decideAction(hasEngSubs) {
   var isBTSChannel = checkChannelName();
@@ -114,7 +154,7 @@ function decideAction(hasEngSubs) {
 
 function checkChannelName() {
   var btsChannels = ["BANGTANTV", "Big Hit Labels"];
-  var channelName = document.querySelector("#channel-name").innerText;
+  var channelName = document.querySelector("#meta-contents #channel-name").innerText;
   console.log("Channel name = " + channelName);
   for (var i = 0; i < btsChannels.length; i++) {
     if (channelName.includes(btsChannels[i])) {
@@ -125,7 +165,8 @@ function checkChannelName() {
 }
 
 function checkTitle() {
-  var videoTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+  // var videoTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+  var videoTitle = document.querySelector("#info-contents .title").innerText;
   videoTitle = videoTitle.toLowerCase();
   return (videoTitle.includes("bts") || videoTitle.includes("bangtan"));
 }

@@ -22,9 +22,6 @@ function findCorrectVid(dateArray, oldVidTitle) {
     console.log("subbed vid success");
     chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
     });
-    // chrome.tabs.executeScript({
-    //     file: 'onYouTube.js'
-    //   });
   }
 
 

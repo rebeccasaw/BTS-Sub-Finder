@@ -7,8 +7,6 @@ chrome.runtime.onStartup.addListener(addListeners());
 
 
 function addListeners() {
-
-
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     console.log("background tab listener event In");
     if (changeInfo.status === 'complete') {
