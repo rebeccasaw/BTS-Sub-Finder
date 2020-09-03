@@ -24,6 +24,7 @@ function findCorrectVid(dateArray, oldVidTitle) {
     });
   }
 
+  //check other vids after top one
 
   oldVidTitle = oldVidTitle.replace(/[^0-9a-z]/gi, '');
   //removes any characters that aren't english

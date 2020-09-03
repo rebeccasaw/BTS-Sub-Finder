@@ -9,9 +9,9 @@ reset();
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
-    if (!firstTimeRunning){
+    if (!firstTimeRunning) {
       reset();
-    }else{
+    } else {
       firstTimeRunning = false;
     }
     // console.log("tab updated");
@@ -60,81 +60,33 @@ function getSubtitlesData() {
   }
 }
 
-function waitForElementToDisplay(selector, time, hasEngSubs) {
-  //add check channel name changed here
-  //what if two vids from same channel
-  //is channel name correct when video title is loaded
-  //is there a dom loaded event
-
-
-  //if title is different
-  //is channel name updated and correct at that point
-  // if (document.querySelector(selector) != null) {
-  var titleSelector = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-
-  if (titleSelector != null && titleSelector != "Home") {
-
-    //if this broken now
-    //because there is a channel name
-    //probably
-
-
-    //title exists - or channelName? 
-    //should probably check both
-    var newVidTitle = null;
-    var newChannelName = null;
-    newVidTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-    newChannelName = document.querySelector("#channel-name").innerText;
-    console.log("oldVidTitle = " + oldVidTitle + " new vid title " + newVidTitle);
-    if (newVidTitle != oldVidTitle && newVidTitle != "Home") {
-      decideAction(hasEngSubs);
-      oldVidTitle = newVidTitle;
-      //check channel name here?
-
-
-      var channelName2 = document.querySelector("#channel-name").innerText;
-      alert(" new channel name 2 =" + channelName2 + " newVidTitle = " + newVidTitle);
-      return;
-    }
-    else {
-      setTimeout(function () {
-        waitForElementToDisplay(selector, time, hasEngSubs);
-      }, time);
-    }
-
-  }
-  else {
-    setTimeout(function () {
-      waitForElementToDisplay(selector, time, hasEngSubs);
-    }, time);
-  }
-}
-
-
 function waitForYTInfo(hasEngSubs) {
-  console.log("wait 2 called");
+  var vidTitElement = document.querySelector("#info-contents .title");
+  var chanNameElement = document.querySelector("#meta-contents #channel-name");
+  if (vidTitElement && chanNameElement) {
+    var vidTitle = document.querySelector("#info-contents .title").innerText.trim();
+    var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
+    console.log("title = " + vidTitle + " channel name = " + channelName);
+    console.log("vidTitle is null = " + (vidTitle === null) + " vidtitle is nothing = " + ((vidTitle === "")));
 
-
-  var vidTitle = document.querySelector("#info-contents .title").innerText.trim();
-  var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
-  console.log("title = " + vidTitle + " channel name = " + channelName);
-  console.log("vidTitle is null = " + (vidTitle === null) + " vidtitle is nothing = " + ((vidTitle === "")));
-
-  console.log("vidTitle = " + vidTitle + " oldVidTitle = " + oldVidTitle);
-  if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
-    setTimeout(function () {
-      waitForYTInfo(hasEngSubs);
-    }, 1000);
-  } else if (vidTitle == oldVidTitle) {
-    setTimeout(function () {
-      waitForYTInfo(hasEngSubs);
-    }, 1000);
-  } else {
+    console.log("vidTitle = " + vidTitle + " oldVidTitle = " + oldVidTitle);
+    if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
+      setTimeout(function () {
+        waitForYTInfo(hasEngSubs);
+      }, 1000);
+    } else if (vidTitle == oldVidTitle) {
+      setTimeout(function () {
+        waitForYTInfo(hasEngSubs);
+      }, 1000);
+    } else {
+      decideAction(hasEngSubs);
+      oldVidTitle = vidTitle;
+    }
+  }else {
     decideAction(hasEngSubs);
     oldVidTitle = vidTitle;
   }
 }
-
 
 //at some point change to promises to speed up
 
@@ -165,7 +117,6 @@ function checkChannelName() {
 }
 
 function checkTitle() {
-  // var videoTitle = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
   var videoTitle = document.querySelector("#info-contents .title").innerText;
   videoTitle = videoTitle.toLowerCase();
   return (videoTitle.includes("bts") || videoTitle.includes("bangtan"));
@@ -180,7 +131,6 @@ function waitForSubtitleButtonReady() {
   }
   else {
     setTimeout(function () {
-      console.log("null so waiting");
       waitForSubtitleButtonReady();
     }, 1000);
 
@@ -188,14 +138,11 @@ function waitForSubtitleButtonReady() {
 }
 
 function turnSubsOn(subtitlesOn) {
-  console.log("subtitlesOn = " + subtitlesOn);
   if (subtitlesOn === "false") {
     $(".ytp-subtitles-button").click();
-    console.log("clicked");
   }
 
 }
-
 
 
 function openSubbedVid() {
@@ -203,7 +150,6 @@ function openSubbedVid() {
   var dateCode = getDateCode(date);
 
   var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
-  //pauseVideo();
   var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
   chrome.runtime.sendMessage({ message: "FindSubbedVid", url: subbedUrl, dateArray: dateCode, vidTitle: title }, function (response) {
   });
@@ -273,7 +219,5 @@ function pauseVideo() {
 
 
 function onSubbedVidResult(result) {
-
   pauseVideo();
-  //alert("result = "+result);
 }
