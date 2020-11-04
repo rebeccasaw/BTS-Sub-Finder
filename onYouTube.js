@@ -1,18 +1,13 @@
 var oldVidTitle = ["", ""];
 var timeout;
 var oldWindowUrl = "";
-console.log("on you tube top once called");
 
-// console.log(" top url = " + window.location.href);
 reset(window.location.href);
 
 
-//basically
-//only reset if url is different
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === 'TabUpdated') {
-    console.log("url = " + request.url + " oldUrl = " + oldWindowUrl);
-    // if (window.location.href !== oldWindowUrl) {
+
     if (request.url !== oldWindowUrl) {
       reset(request.url);
     }
@@ -23,15 +18,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function reset(currentUrl) {
-  console.log("RESET CALLED!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   oldWindowUrl = currentUrl;
   clearTimeout(timeout);
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
     getSubtitlesData();
   } else {
-    oldVidTitle[0] = "";
-    oldVidTitle[1] = "";
+    // oldVidTitle[0] = "";
+    // oldVidTitle[1] = "";
   }
 }
 
@@ -40,7 +34,7 @@ function reset(currentUrl) {
 
 
 function getSubtitlesData() {
-  console.log("get subtitles called");
+
   var hasEngSubs = false;
   var url = window.location.toString();
   var watchId;
@@ -62,24 +56,17 @@ function getSubtitlesData() {
           }
         }
       }
-      // waitForElementToDisplay("#channel-name", 1000, hasEngSubs);
-      stopChecking = false;
-      //let it check again when here
       waitForYTInfo(hasEngSubs);
     }
   }
 }
 
 function waitForYTInfo(hasEngSubs) {
-  console.log("waitForYTInfo");
   var vidTitElement = document.querySelector("#info-contents .title");
   var chanNameElement = document.querySelector("#meta-contents #channel-name");
   if (vidTitElement && chanNameElement) {
     var vidTitle = document.querySelector("#info-contents .title").innerText.trim();
     var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
-    console.log("title = " + vidTitle + " channel name = " + channelName);
-    console.log("vidTitle is null = " + (vidTitle === null) + " vidtitle is nothing = " + ((vidTitle === "")));
-    console.log("vidTitle = " + vidTitle + " oldVidTitle = " + oldVidTitle);
     if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
       setNewTimeout(hasEngSubs);
     } else if (vidTitle === oldVidTitle[0] && oldVidTitle[1] !== window.location.href) {
@@ -88,7 +75,6 @@ function waitForYTInfo(hasEngSubs) {
       decideAction(hasEngSubs);
       oldVidTitle[0] = vidTitle;
       oldVidTitle[1] = window.location.href;
-
     }
   } else {
     setNewTimeout(hasEngSubs);
@@ -107,7 +93,15 @@ function decideAction(hasEngSubs) {
   var isBTSChannel = checkChannelName();
   var isBTSTitle = checkTitle();
 
+ 
+
+
+  console.log("\n\nVIDEO")
+  console.log("url = "+window.location.toString());
+  console.log("Video Title = "+document.querySelector("#info-contents .title").innerText.trim());
+  console.log("channel name = "+document.querySelector("#meta-contents #channel-name").innerText.trim())
   console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
+
 
   if (isBTSChannel && hasEngSubs) {
     waitForSubtitleButtonReady();
@@ -120,7 +114,6 @@ function decideAction(hasEngSubs) {
 function checkChannelName() {
   var btsChannels = ["BANGTANTV", "Big Hit Labels"];
   var channelName = document.querySelector("#meta-contents #channel-name").innerText;
-  console.log("Channel name = " + channelName);
   for (var i = 0; i < btsChannels.length; i++) {
     if (channelName.includes(btsChannels[i])) {
       return true;
@@ -182,7 +175,11 @@ function getDateCode(dateString) {
   monthCode = makeTwoDigitNumber(monthCode.toString());
   var dayCode = makeTwoDigitNumber(parts[0]);
   var dateCode = yearCode + monthCode + dayCode;
- 
+
+  //for each day int
+  //add that 
+  //to month etc
+
   dateCodeArray.push(dateCode);
   var dayInt = parseInt(parts[0]);
   dayInt++;
@@ -194,13 +191,31 @@ function getDateCode(dateString) {
   dateCode = yearCode + monthCode + dayCode;
   dateCodeArray.push(dateCode);
   //rebecca this code is terrible make it better
-  console.log(dateCodeArray);
-  return dateCodeArray;
+  //console.log(dateCodeArray);
+  //  return dateCodeArray;
+
+  var videoTitle = document.querySelector("#info-contents .title").innerText;
+  var allNum = true;
+  var inTitleDate = "";
+  for (var i = 0; i < 6; i++) {
+    if (videoTitle.charAt(i).isNaN) allNum = false;
+    inTitleDate += videoTitle.charAt(i);
+  }
+
+  if (allNum) return [inTitleDate,inTitleDate,inTitleDate];
+  else return dateCodeArray;
+  //get first 6 chars
+  //if all numbers use that as date code
+
+
+
+
 }
 
 
-function makeDateCode(dayInt){
+function makeDateCode(dayInt) {
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 }
 
 // function makeDateCodeArray(dateCode) {

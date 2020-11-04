@@ -13,13 +13,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function findCorrectVid(dateArray, oldVidTitle) {
 
   var listedTitle = getListedVidTitle();
-  console.log("listedTitle = " + listedTitle);
 
+  console.log("listed title = "+listedTitle);
 
   if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
     var title = document.querySelector(".ytd-video-renderer #video-title");
     title.click();
-    console.log("subbed vid success");
     chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
     });
   }
