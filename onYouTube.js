@@ -18,6 +18,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function reset(currentUrl) {
+  console.log("reset called");
   oldWindowUrl = currentUrl;
   clearTimeout(timeout);
   var newURL = window.location.toString();
