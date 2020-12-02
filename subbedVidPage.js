@@ -14,15 +14,19 @@ function findCorrectVid(dateArray, oldVidTitle) {
 
   var listedTitle = getListedVidTitle();
 
-  console.log("listed title = "+listedTitle);
+  console.log("listed title = " + listedTitle);
 
-  if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
-    var title = document.querySelector(".ytd-video-renderer #video-title");
-    title.click();
-    chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
-    });
+   console.log("channel ="+ getListedVidChannel());
+
+  if (getListedVidChannel().includes("Bangtan Subs")) {
+
+    if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
+      var title = document.querySelector(".ytd-video-renderer #video-title");
+      title.click();
+      chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
+      });
+    }
   }
-
   //check other vids after top one
 
   oldVidTitle = oldVidTitle.replace(/[^0-9a-z]/gi, '');
@@ -37,4 +41,9 @@ function findCorrectVid(dateArray, oldVidTitle) {
 function getListedVidTitle() {
   var title = document.querySelector(".ytd-video-renderer #video-title").innerText;
   return title;
+}
+
+function getListedVidChannel() {
+  var channelName = document.querySelector(".ytd-video-renderer #channel-name").innerText;
+  return channelName;
 }
