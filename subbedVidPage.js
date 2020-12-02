@@ -16,7 +16,7 @@ function findCorrectVid(dateArray, oldVidTitle) {
 
   console.log("listed title = " + listedTitle);
 
-   console.log("channel ="+ getListedVidChannel());
+  // console.log("channel ="+ getListedVidChannel());
 
   if (getListedVidChannel().includes("Bangtan Subs")) {
 
