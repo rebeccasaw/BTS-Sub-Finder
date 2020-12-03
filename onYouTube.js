@@ -1,11 +1,11 @@
 var oldVidTitle = ["", ""];
 var timeout;
 var oldWindowUrl = "";
-
 reset(window.location.href);
 
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  // console.log("message recieved = "+request.message);
   if (request.message === 'TabUpdated') {
 
     if (request.url !== oldWindowUrl) {
@@ -19,7 +19,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function reset(currentUrl) {
   console.log("reset called");
+
   oldWindowUrl = currentUrl;
+  //here when quick break?
   clearTimeout(timeout);
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
@@ -68,14 +70,27 @@ function waitForYTInfo(hasEngSubs) {
   if (vidTitElement && chanNameElement) {
     var vidTitle = document.querySelector("#info-contents .title").innerText.trim();
     var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
+
+
+    //alert("test old vid title called");
+    // console.log("waitForYT called");
+    // console.log("old old vid title = " + oldVidTitle);
+    //here called straight away
+    console.log("Channel Name contains enter character = "+channelName.includes("\n"));
+
     if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
       setNewTimeout(hasEngSubs);
-    } else if (vidTitle === oldVidTitle[0] && oldVidTitle[1] !== window.location.href) {
+    // } else if (vidTitle === oldVidTitle[0] && oldVidTitle[1] !== window.location.href) {
+    //   setNewTimeout(hasEngSubs);
+    } else if (channelName.includes("\n")) {
       setNewTimeout(hasEngSubs);
     } else {
       decideAction(hasEngSubs);
+   //   console.log("1 new old vid title = " + oldVidTitle);
       oldVidTitle[0] = vidTitle;
       oldVidTitle[1] = window.location.href;
+      //change order here?
+   //   console.log("2 new old vid title = " + oldVidTitle);
     }
   } else {
     setNewTimeout(hasEngSubs);
@@ -86,6 +101,7 @@ function setNewTimeout(hasEngSubs) {
   timeout = setTimeout(function () {
     waitForYTInfo(hasEngSubs);
   }, 1000);
+  //make smaller to make faster?
 }
 
 //at some point change to promises to speed up
@@ -94,13 +110,13 @@ function decideAction(hasEngSubs) {
   var isBTSChannel = checkChannelName();
   var isBTSTitle = checkTitle();
 
- 
+
 
 
   console.log("\n\nVIDEO")
-  console.log("url = "+window.location.toString());
-  console.log("Video Title = "+document.querySelector("#info-contents .title").innerText.trim());
-  console.log("channel name = "+document.querySelector("#meta-contents #channel-name").innerText.trim())
+  console.log("url = " + window.location.toString());
+  console.log("Video Title = " + document.querySelector("#info-contents .title").innerText.trim());
+  console.log("channel name = " + document.querySelector("#meta-contents #channel-name").innerText.trim())
   console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
 
 
@@ -109,6 +125,9 @@ function decideAction(hasEngSubs) {
   } else if (isBTSChannel) {
     openSubbedVid();
   }
+  //add something here for bighit channel
+  //check if video starts with bts
+
 
 }
 
@@ -203,7 +222,7 @@ function getDateCode(dateString) {
     inTitleDate += videoTitle.charAt(i);
   }
 
-  if (allNum) return [inTitleDate,inTitleDate,inTitleDate];
+  if (allNum) return [inTitleDate, inTitleDate, inTitleDate];
   else return dateCodeArray;
   //get first 6 chars
   //if all numbers use that as date code
@@ -253,3 +272,24 @@ function pauseVideo() {
 function onSubbedVidResult(result) {
   pauseVideo();
 }
+
+
+
+// function setLoadedAlert() {
+//   // document.getElementById("body").addEventListener("yt-page-data-updated", ytUpdated);
+//   document.querySelector("body").addEventListener('click', ytUpdated);
+//   console.log("alert set");
+// }
+
+// function ytUpdated() {
+//   console.log("updated");
+//  // alert("updated");
+// }
+
+
+//at start if body loaded
+//set yt listener
+//if not timer
+
+//or just
+//if channel name has enter character in it
