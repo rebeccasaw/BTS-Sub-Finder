@@ -80,8 +80,8 @@ function waitForYTInfo(hasEngSubs) {
 
     if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
       setNewTimeout(hasEngSubs);
-    // } else if (vidTitle === oldVidTitle[0] && oldVidTitle[1] !== window.location.href) {
-    //   setNewTimeout(hasEngSubs);
+    } else if (vidTitle === oldVidTitle[0] && oldVidTitle[1] !== window.location.href) {
+      setNewTimeout(hasEngSubs);
     } else if (channelName.includes("\n")) {
       setNewTimeout(hasEngSubs);
     } else {
@@ -218,7 +218,8 @@ function getDateCode(dateString) {
   var allNum = true;
   var inTitleDate = "";
   for (var i = 0; i < 6; i++) {
-    if (videoTitle.charAt(i).isNaN) allNum = false;
+    if (isNaN(videoTitle.charAt(i))) allNum = false;
+    //console.log("NaN = "+isNaN(videoTitle.charAt(i)));
     inTitleDate += videoTitle.charAt(i);
   }
 

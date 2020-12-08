@@ -5,31 +5,44 @@ chrome.runtime.sendMessage({ message: "ready" }, function (response) {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "subbedVidData") {
-    findCorrectVid(request.dateArray, request.vidTitle);
+    //for here
+
+
+    var success = false;;
+
+    for (var i = 0; i < 3; i++) {
+     // console.log("tried new list vvideo");
+      if (!success) {
+      success = findCorrectVid(request.dateArray, request.vidTitle, i);
+      }
+    }
   }
 });
 
 
-function findCorrectVid(dateArray, oldVidTitle) {
-
-  var listedTitle = getListedVidTitle();
+function findCorrectVid(dateArray, oldVidTitle, vidNum) {
+  var success = false;
+  var listedTitle = getListedVidTitle(vidNum);
 
   console.log("listed title = " + listedTitle);
 
   // console.log("channel ="+ getListedVidChannel());
 
-  if (getListedVidChannel().includes("Bangtan Subs")) {
+  if (getListedVidChannel(vidNum).includes("Bangtan Subs")) {
 
     if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
-      var title = document.querySelector(".ytd-video-renderer #video-title");
+      console.log("success date array = "+dateArray);
+      var title = document.querySelectorAll(".ytd-video-renderer #video-title")[vidNum];
       title.click();
+      success = true;
       chrome.runtime.sendMessage({ message: "foundSubbedVidSuccess" }, function (response) {
       });
     }
   }
+  return success;
   //check other vids after top one
 
-  oldVidTitle = oldVidTitle.replace(/[^0-9a-z]/gi, '');
+  //oldVidTitle = oldVidTitle.replace(/[^0-9a-z]/gi, '');
   //removes any characters that aren't english
 
   //sep title into words
@@ -38,12 +51,15 @@ function findCorrectVid(dateArray, oldVidTitle) {
 }
 
 
-function getListedVidTitle() {
-  var title = document.querySelector(".ytd-video-renderer #video-title").innerText;
+function getListedVidTitle(vidNum) {
+  var title = document.querySelectorAll(".ytd-video-renderer #video-title")[vidNum].innerText;
+  //query selector all for array
+  //or $$ for jquery
+
   return title;
 }
 
-function getListedVidChannel() {
-  var channelName = document.querySelector(".ytd-video-renderer #channel-name").innerText;
+function getListedVidChannel(vidNum) {
+  var channelName = document.querySelectorAll(".ytd-video-renderer #channel-name")[vidNum].innerText;
   return channelName;
 }
