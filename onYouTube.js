@@ -21,7 +21,6 @@ function reset(currentUrl) {
   console.log("reset called");
 
   oldWindowUrl = currentUrl;
-  //here when quick break?
   clearTimeout(timeout);
   var newURL = window.location.toString();
   if (newURL.includes("watch")) {
@@ -76,7 +75,7 @@ function waitForYTInfo(hasEngSubs) {
     // console.log("waitForYT called");
     // console.log("old old vid title = " + oldVidTitle);
     //here called straight away
-    console.log("Channel Name contains enter character = "+channelName.includes("\n"));
+    // console.log("Channel Name contains enter character = "+channelName.includes("\n"));
 
     if (vidTitle == null || vidTitle == "" || channelName == "" || channelName == null) {
       setNewTimeout(hasEngSubs);
@@ -86,11 +85,11 @@ function waitForYTInfo(hasEngSubs) {
       setNewTimeout(hasEngSubs);
     } else {
       decideAction(hasEngSubs);
-   //   console.log("1 new old vid title = " + oldVidTitle);
+      //   console.log("1 new old vid title = " + oldVidTitle);
       oldVidTitle[0] = vidTitle;
       oldVidTitle[1] = window.location.href;
       //change order here?
-   //   console.log("2 new old vid title = " + oldVidTitle);
+      //   console.log("2 new old vid title = " + oldVidTitle);
     }
   } else {
     setNewTimeout(hasEngSubs);
@@ -119,6 +118,18 @@ function decideAction(hasEngSubs) {
   console.log("channel name = " + document.querySelector("#meta-contents #channel-name").innerText.trim())
   console.log("decide action hasEngSubs = " + hasEngSubs + " isBTSChannel = " + isBTSChannel);
 
+  //if bighit
+  //check if bts at start
+//if not
+//if eng subs put on
+
+//other is else
+
+var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
+var vidTit=document.querySelector("#info-contents .title").innerText.trim();
+if(channelName=="Big Hit Labels"){
+
+}
 
   if (isBTSChannel && hasEngSubs) {
     waitForSubtitleButtonReady();
@@ -174,6 +185,15 @@ function openSubbedVid() {
   var dateCode = getDateCode(date);
 
   var title = document.querySelector(".ytd-video-primary-info-renderer .title").innerText;
+
+  //replace title stuff here
+
+  title=title.replace("[","");
+  title=title.replace("]","");
+  title=title.replace("(","");
+  title=title.replace(")","");
+  title=title.replace("방탄소년단","");
+
   var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
   chrome.runtime.sendMessage({ message: "FindSubbedVid", url: subbedUrl, dateArray: dateCode, vidTitle: title }, function (response) {
   });
@@ -191,6 +211,7 @@ function getDateCode(dateString) {
   dateString = dateString.slice(1);
   var parts = dateString.split(" ");
   var yearCode = parts[2].charAt(2) + parts[2].charAt(3);
+  if (parts[1] == "Sept") parts[1] = "Sep";
   var monthCode = months.indexOf(parts[1]) + 1;
   monthCode = makeTwoDigitNumber(monthCode.toString());
   var dayCode = makeTwoDigitNumber(parts[0]);
@@ -227,9 +248,6 @@ function getDateCode(dateString) {
   else return dateCodeArray;
   //get first 6 chars
   //if all numbers use that as date code
-
-
-
 
 }
 

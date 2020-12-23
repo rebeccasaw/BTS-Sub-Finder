@@ -29,9 +29,9 @@ function findCorrectVid(dateArray, oldVidTitle, vidNum) {
   // console.log("channel ="+ getListedVidChannel());
 
   if (getListedVidChannel(vidNum).includes("Bangtan Subs")) {
-
+    console.log("date array = "+dateArray);
     if (listedTitle.includes(dateArray[0]) || listedTitle.includes(dateArray[1]) || listedTitle.includes(dateArray[2])) {
-      console.log("success date array = "+dateArray);
+      
       var title = document.querySelectorAll(".ytd-video-renderer #video-title")[vidNum];
       title.click();
       success = true;
