@@ -39,10 +39,9 @@ function getSubtitlesData() {
 
   var hasEngSubs = false;
   var url = window.location.toString();
-  var watchId;
-  var urlParts = url.split("youtube.com/watch?v=");
-  if (urlParts.length > 0) {
-    watchId = urlParts[1];
+  var watchId = getWatchId (url);
+ console.log("watchId = "+watchId);
+  if (watchId) {
     var request = new XMLHttpRequest();
     request.open("GET", "https://video.google.com/timedtext?type=list&v=" + watchId);
     request.send();
@@ -62,6 +61,22 @@ function getSubtitlesData() {
     }
   }
 }
+
+function getWatchId(url) {
+  var watchId;
+  var queryString = decodeURIComponent(url);
+  var queries = queryString.split("&");
+  //for loop to check values
+  for (var i = 0; i < queries.length; i++) {
+    var parts = queries[i].split("=");
+    console.log("parts[0] = "+parts[0]);
+    if(parts[0]==="v"){
+      watchId=parts[1];
+    }
+  }
+  return watchId;
+}
+
 
 function waitForYTInfo(hasEngSubs) {
   var vidTitElement = document.querySelector("#info-contents .title");
@@ -120,16 +135,16 @@ function decideAction(hasEngSubs) {
 
   //if bighit
   //check if bts at start
-//if not
-//if eng subs put on
+  //if not
+  //if eng subs put on
 
-//other is else
+  //other is else
 
-var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
-var vidTit=document.querySelector("#info-contents .title").innerText.trim();
-if(channelName=="Big Hit Labels"){
+  var channelName = document.querySelector("#meta-contents #channel-name").innerText.trim();
+  var vidTit = document.querySelector("#info-contents .title").innerText.trim();
+  if (channelName == "Big Hit Labels") {
 
-}
+  }
 
   if (isBTSChannel && hasEngSubs) {
     waitForSubtitleButtonReady();
@@ -188,11 +203,11 @@ function openSubbedVid() {
 
   //replace title stuff here
 
-  title=title.replace("[","");
-  title=title.replace("]","");
-  title=title.replace("(","");
-  title=title.replace(")","");
-  title=title.replace("방탄소년단","");
+  title = title.replace("[", "");
+  title = title.replace("]", "");
+  title = title.replace("(", "");
+  title = title.replace(")", "");
+  title = title.replace("방탄소년단", "");
 
   var subbedUrl = "https://www.youtube.com/c/BangtanSubs/search?query=" + title;
   chrome.runtime.sendMessage({ message: "FindSubbedVid", url: subbedUrl, dateArray: dateCode, vidTitle: title }, function (response) {
