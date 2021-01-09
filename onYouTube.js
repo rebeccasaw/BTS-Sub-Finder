@@ -40,7 +40,6 @@ function getSubtitlesData() {
   var hasEngSubs = false;
   var url = window.location.toString();
   var watchId = getWatchId (url);
- console.log("watchId = "+watchId);
   if (watchId) {
     var request = new XMLHttpRequest();
     request.open("GET", "https://video.google.com/timedtext?type=list&v=" + watchId);
@@ -65,11 +64,10 @@ function getSubtitlesData() {
 function getWatchId(url) {
   var watchId;
   var queryString = decodeURIComponent(url);
-  var queries = queryString.split("&");
-  //for loop to check values
+  var secondPart = queryString.split("?");
+  var queries = secondPart[1].split("&");
   for (var i = 0; i < queries.length; i++) {
     var parts = queries[i].split("=");
-    console.log("parts[0] = "+parts[0]);
     if(parts[0]==="v"){
       watchId=parts[1];
     }
